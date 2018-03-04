@@ -1,10 +1,10 @@
 # Copyright (c) 2015 Scott Christensen
 #
-# This file is part of condorpy
+# This file is part of htpython modified from condorpy
 #
-# condorpy is free software: you can redistribute it and/or modify it under
+# condorpy/htpython is free software: you can redistribute it and/or modify it under
 # the terms of the BSD 2-Clause License. A copy of the BSD 2-Clause License
-# should have been distributed with this file.
+# should have be distributed with this file.
 
 import logging
 

@@ -1,10 +1,10 @@
 # Copyright (c) 2015 Scott Christensen
 #
-# This file is part of condorpy
+# This file is part of htpython modified from condorpy
 #
-# condorpy is free software: you can redistribute it and/or modify it under
+# condorpy/htpython is free software: you can redistribute it and/or modify it under
 # the terms of the BSD 2-Clause License. A copy of the BSD 2-Clause License
-# should have been distributed with this file.
+# should have be distributed with this file.
 
 import os
 import re
@@ -13,7 +13,7 @@ from collections import OrderedDict
 from .htcondor_object_base import HTCondorObjectBase
 from .static import CONDOR_JOB_STATUSES
 from .logger import log
-from .exceptions import NoExecutable, RemoteError, HTCondorError
+from .exceptions import NoExecutable, HTCondorError
 
 
 class Job(HTCondorObjectBase):
@@ -42,13 +42,6 @@ class Job(HTCondorObjectBase):
         num_jobs (int, optional): The number of sub-jobs that will be queued by this job. This is the argument
             of the 'Queue' attribute in the submit description file. It can also be set when calling the submit
             method. Defaults to 1.
-        host (str, optional): The host name of a remote server running an HTCondor scheduler daemon. Defaults to
-            None.
-        username (str, optional): The username for logging in to 'host'. Defaults to None.
-        password (str, optional): The password for 'username' when logging in to 'host'. Defaults to None.
-        private_key (str, optional): The path to a private key file providing passwordless ssh on 'host'.
-            Defaults to None.
-        private_key_pass (str, optional): The passphrase for the 'private_key' if required.
         remote_input_files (list, optional): A list of files to be copied to a remote server for remote job submission.
         working_directory (str, optional): The file path where execute calls should be run from.
 
@@ -58,11 +51,6 @@ class Job(HTCondorObjectBase):
                  name,
                  attributes=None,
                  num_jobs=1,
-                 host=None,
-                 username=None,
-                 password=None,
-                 private_key=None,
-                 private_key_pass=None,
                  remote_input_files=None,
                  working_directory='.',
                  **kwargs):
@@ -73,7 +61,7 @@ class Job(HTCondorObjectBase):
         object.__setattr__(self, '_attributes', OrderedDict())
         object.__setattr__(self, '_num_jobs', int(num_jobs))
         object.__setattr__(self, '_job_file', '')
-        super(Job, self).__init__(host, username, password, private_key, private_key_pass, remote_input_files, working_directory)
+        super(Job, self).__init__(remote_input_files, working_directory)  #TODO make this python3 compatible
 
         attributes = attributes or OrderedDict()
         attributes['job_name'] = name
@@ -199,8 +187,6 @@ class Job(HTCondorObjectBase):
         initial_dir = self.get('initialdir')
         if not initial_dir:
             initial_dir = os.curdir #TODO does this conflict with the working directory?
-        if self._remote and os.path.isabs(initial_dir):
-            raise RemoteError('Cannot define an absolute path as an initial_dir on a remote scheduler')
         return initial_dir
 
     def submit(self, queue=None, options=[]):
@@ -373,7 +359,7 @@ class Job(HTCondorObjectBase):
 
         #initialize status dictionary
         status_dict = dict()
-        for val in CONDOR_JOB_STATUSES.itervalues():
+        for val in CONDOR_JOB_STATUSES.itervalues():  #TODO make this python3 compatible
             status_dict[val] = 0
 
         for status_code_str in out:
